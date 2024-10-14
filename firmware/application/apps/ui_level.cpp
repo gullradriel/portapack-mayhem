@@ -37,6 +37,9 @@ namespace ui {
 
 // Function to map the value from one range to another
 int32_t LevelView::map(int32_t value, int32_t fromLow, int32_t fromHigh, int32_t toLow, int32_t toHigh) {
+    int32_t divider = fromHigh - fromLow ;
+    if( divider == 0 )
+        return 0 ;
     return toLow + (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow);
 }
 
@@ -299,10 +302,20 @@ size_t LevelView::change_mode(freqman_index_t new_mod) {
         // Reset receiver model to fix bug when going from SPEC to audio, the sound is distorted.
         receiver_model.set_sampling_rate(3072000);
         receiver_model.set_baseband_bandwidth(1750000);
+        field_beep_squelch.hidden( true );
+        text_beep_squelch.hidden( true );
     }
+    else
+    {
+        field_beep_squelch.hidden( false );
+        text_beep_squelch.hidden( false );
+    }
+
     if (new_mod != NFM_MODULATION) {
         text_ctcss.set("             ");
     }
+
+    set_dirty();
 
     m4_manage_stat_update();  // rx_sat hack
 
