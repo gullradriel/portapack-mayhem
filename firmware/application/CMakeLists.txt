@@ -133,7 +133,6 @@ file(GLOB I2CDEV_SOURCES ${COMMON}/i2cdev_*.cpp)
 set(CPPSRC
 	main.cpp
 	shell.cpp
-	${COMMON}/acars_packet.cpp
 	${COMMON}/adsb.cpp
 	${COMMON}/adsb_frame.cpp
 	${COMMON}/ais_baseband.cpp
@@ -269,7 +268,6 @@ set(CPPSRC
 	ui/ui_tone_key.cpp
 	ui/ui_transmitter.cpp
 	ui/ui_bmpview.cpp
-	apps/acars_app.cpp
 	apps/ais_app.cpp
 	apps/analog_audio_app.cpp
 	# apps/analog_tv_app.cpp
@@ -298,6 +296,7 @@ set(CPPSRC
 	apps/ui_debug_max17055.cpp
 	apps/ui_dfu_menu.cpp
 	apps/ui_encoders.cpp
+	apps/ui_external_module_view.cpp
 	apps/ui_fileman.cpp
 	apps/ui_flash_utility.cpp
 	apps/ui_freqman.cpp
