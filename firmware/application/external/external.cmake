@@ -1,17 +1,5 @@
 set(EXTCPPSRC
 
-	#tetris
-	external/tetris/main.cpp
-	external/tetris/ui_tetris.cpp
-
-	#breakout
-	external/breakout/main.cpp
-	external/breakout/ui_breakout.cpp
-
-	#snake
-	external/snake/main.cpp
-	external/snake/ui_snake.cpp
-
 	#afsk_rx
 	external/afsk_rx/main.cpp
 	external/afsk_rx/ui_afsk_rx.cpp
@@ -67,6 +55,10 @@ set(EXTCPPSRC
 	external/keyfob/ui_keyfob.cpp
 	external/keyfob/ui_keyfob.hpp
 
+	#tetris
+	external/tetris/main.cpp
+	external/tetris/ui_tetris.cpp
+
 	#extsensors
 	external/extsensors/main.cpp
 	external/extsensors/ui_extsensors.cpp
@@ -114,6 +106,11 @@ set(EXTCPPSRC
 	#acars
 	external/acars_rx/main.cpp
 	external/acars_rx/acars_app.cpp
+
+	#wefax_rx
+	external/wefax_rx/main.cpp
+	external/wefax_rx/ui_wefax_rx.cpp
+	
 
 	#shoppingcart_lock
 	external/shoppingcart_lock/main.cpp
@@ -179,9 +176,25 @@ set(EXTCPPSRC
 	external/playlist_editor/main.cpp
 	external/playlist_editor/ui_playlist_editor.cpp
 
+	#snake
+	external/snake/main.cpp
+	external/snake/ui_snake.cpp
+
 	#stopwatch
 	external/stopwatch/main.cpp
 	external/stopwatch/ui_stopwatch.cpp
+
+	#breakout
+	external/breakout/main.cpp
+	external/breakout/ui_breakout.cpp
+
+	#doom
+	external/doom/main.cpp
+	external/doom/ui_doom.cpp
+
+	#screening
+	# external/screening/main.cpp
+	# external/screening/ui_screening.cpp
 )
 
 set(EXTAPPLIST
@@ -199,8 +212,6 @@ set(EXTAPPLIST
 	spainter
 	keyfob
 	tetris
-	breakout
-	snake
 	extsensors
 	foxhunt_rx
 	audio_test
@@ -215,6 +226,7 @@ set(EXTAPPLIST
 	#acars_rx
 	ookbrute
 	ook_editor
+	wefax_rx
 	shoppingcart_lock
 	flippertx
 	remote
@@ -228,5 +240,9 @@ set(EXTAPPLIST
 	view_wav
 	sd_wipe
 	playlist_editor
+	snake
 	stopwatch
+	breakout
+	doom
+	# screening
 )

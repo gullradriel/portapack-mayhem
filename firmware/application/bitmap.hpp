@@ -1955,82 +1955,6 @@ static constexpr Bitmap bitmap_icon_tetris{
     {16, 16},
     bitmap_icon_tetris_data};
 
-static constexpr uint8_t bitmap_icon_breakout_data[] = {
-    0x00,
-    0x00,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x00,
-    0x00,
-    0xF7,
-    0xF7,
-    0xF7,
-    0xF7,
-    0xF7,
-    0xF7,
-    0x00,
-    0x00,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x00,
-    0x00,
-    0xF7,
-    0xF7,
-    0xF7,
-    0xF7,
-    0xF7,
-    0xF7,
-};
-static constexpr Bitmap bitmap_icon_breakout{
-    {16, 16},
-    bitmap_icon_breakout_data};
-
-static constexpr uint8_t bitmap_icon_snake_data[] = {
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0xE0,
-    0x09,
-    0x70,
-    0xC7,
-    0xFC,
-    0xC9,
-    0x06,
-    0x00,
-    0x06,
-    0x00,
-    0x0C,
-    0x00,
-    0xF0,
-    0x01,
-    0x00,
-    0x3E,
-    0x00,
-    0x40,
-    0xFC,
-    0x40,
-    0x02,
-    0x3F,
-    0x02,
-    0x00,
-    0x7C,
-    0x80,
-    0x80,
-    0x7F,
-};
-static constexpr Bitmap bitmap_icon_snake{
-    {16, 16},
-    bitmap_icon_snake_data};
-
 static constexpr uint8_t bitmap_icon_rename_data[] = {
     0x00,
     0x00,
@@ -2470,6 +2394,44 @@ static constexpr uint8_t bitmap_icon_upconvert_data[] = {
 static constexpr Bitmap bitmap_icon_upconvert{
     {16, 16},
     bitmap_icon_upconvert_data};
+
+static constexpr uint8_t bitmap_icon_breakout_data[] = {
+    0x00,
+    0x00,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x00,
+    0x00,
+    0xF7,
+    0xF7,
+    0xF7,
+    0xF7,
+    0xF7,
+    0xF7,
+    0x00,
+    0x00,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x00,
+    0x00,
+    0xF7,
+    0xF7,
+    0xF7,
+    0xF7,
+    0xF7,
+    0xF7,
+};
+static constexpr Bitmap bitmap_icon_breakout{
+    {16, 16},
+    bitmap_icon_breakout_data};
 
 static constexpr uint8_t bitmap_icon_hide_data[] = {
     0x00,
@@ -5017,6 +4979,44 @@ static constexpr Bitmap bitmap_icon_ais{
     {16, 16},
     bitmap_icon_ais_data};
 
+static constexpr uint8_t bitmap_icon_doom_data[] = {
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x77,
+    0xDF,
+    0xFF,
+    0xDF,
+    0xD9,
+    0xFD,
+    0x89,
+    0xF8,
+    0x89,
+    0xE8,
+    0x89,
+    0xA8,
+    0x89,
+    0xA8,
+    0xD9,
+    0xAD,
+    0x79,
+    0xAF,
+    0x2D,
+    0xAA,
+    0x07,
+    0xA8,
+    0x03,
+    0xA0,
+    0x01,
+    0x80,
+    0x00,
+    0x00,
+};
+static constexpr Bitmap bitmap_icon_doom{
+    {16, 16},
+    bitmap_icon_doom_data};
+
 static constexpr uint8_t bitmap_temperature_data[] = {
     0x00,
     0x00,
@@ -6139,6 +6139,44 @@ static constexpr Bitmap bitmap_target_verify{
     {32, 32},
     bitmap_target_verify_data};
 
+static constexpr uint8_t bitmap_icon_snake_data[] = {
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0xE0,
+    0x09,
+    0x70,
+    0xC7,
+    0xFC,
+    0xC9,
+    0x06,
+    0x00,
+    0x06,
+    0x00,
+    0x0C,
+    0x00,
+    0xF0,
+    0x01,
+    0x00,
+    0x3E,
+    0x00,
+    0x40,
+    0xFC,
+    0x40,
+    0x02,
+    0x3F,
+    0x02,
+    0x00,
+    0x7C,
+    0x80,
+    0x80,
+    0x7F,
+};
+static constexpr Bitmap bitmap_icon_snake{
+    {16, 16},
+    bitmap_icon_snake_data};
+
 static constexpr uint8_t bitmap_icon_new_category_data[] = {
     0x00,
     0x18,
@@ -6331,4 +6369,4 @@ static constexpr Bitmap bitmap_icon_protoview{
 
 } /* namespace ui */
 
-#endif /*__BITMAP_HPP__*/
+#endif/*__BITMAP_HPP__*/
