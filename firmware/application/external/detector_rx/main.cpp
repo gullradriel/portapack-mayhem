@@ -20,64 +20,65 @@
  */
 
 #include "ui.hpp"
-#include "ui_random_password.hpp"
+#include "ui_detector_rx.hpp"
 #include "ui_navigation.hpp"
 #include "external_app.hpp"
 
-namespace ui::external_app::random_password {
+namespace ui::external_app::detector_rx {
 void initialize_app(ui::NavigationView& nav) {
-    nav.push<RandomPasswordView>();
+    nav.push<DetectorRxView>();
 }
-}  // namespace ui::external_app::random_password
+}  // namespace ui::external_app::detector_rx
 
 extern "C" {
 
-__attribute__((section(".external_app.app_random_password.application_information"), used)) application_information_t _application_information_random_password = {
+__attribute__((section(".external_app.app_detector_rx.application_information"), used)) application_information_t _application_information_detector_rx = {
     /*.memory_location = */ (uint8_t*)0x00000000,
-    /*.externalAppEntry = */ ui::external_app::random_password::initialize_app,
+    /*.externalAppEntry = */ ui::external_app::detector_rx::initialize_app,
     /*.header_version = */ CURRENT_HEADER_VERSION,
     /*.app_version = */ VERSION_MD5,
 
-    /*.app_name = */ "Rand Pwd",
-    /*.bitmap_data = */ {
+    /*.app_name = */ "Detector",
+    /*.bitmap_data = */
+    {
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x04,
+        0x20,
+        0x12,
+        0x48,
+        0x8A,
+        0x51,
+        0xCA,
+        0x53,
+        0xCA,
+        0x53,
+        0x8A,
+        0x51,
+        0x12,
+        0x48,
+        0x84,
+        0x21,
         0xC0,
         0x03,
-        0xE0,
-        0x07,
+        0x40,
+        0x02,
+        0x60,
+        0x06,
+        0x20,
+        0x04,
         0x30,
         0x0C,
-        0x30,
-        0x0C,
-        0x30,
-        0x0C,
-        0x30,
-        0x0C,
-        0xE0,
-        0x07,
-        0xC0,
-        0x03,
-        0x80,
-        0x01,
-        0x80,
-        0x01,
-        0x80,
-        0x01,
-        0x80,
-        0x01,
-        0x80,
-        0x07,
-        0x80,
-        0x03,
-        0x80,
-        0x07,
-        0x80,
-        0x01,
-    },
-    /*.icon_color = */ ui::Color::yellow().v,
-    /*.menu_location = */ app_location_t::UTILITIES,
+        0xF0,
+        0x0F},
+    /*.icon_color = */ ui::Color::orange().v,
+    /*.menu_location = */ app_location_t::RX,
     /*.desired_menu_position = */ -1,
 
-    /*.m4_app_tag = portapack::spi_flash::image_tag_afsk_rx */ {'P', 'A', 'F', 'R'},
+    // this has to be the biggest baseband used by the app. SPEC
+    /*.m4_app_tag = portapack::spi_flash::image_tag_nfm */ {'P', 'W', 'F', 'M'},
     /*.m4_app_offset = */ 0x00000000,  // will be filled at compile time
 };
 }
