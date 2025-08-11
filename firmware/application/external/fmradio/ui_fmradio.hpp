@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2024 HTotoo
- * Copyright (C) 2025 RocketGod - Added modes from my Flipper Zero RF Jammer App - https://betaskynet.com
+ * Copyright (C) 2025 RocketGod
  *
  * This file is part of PortaPack.
  *
@@ -46,6 +46,8 @@
 using namespace ui;
 
 namespace ui::external_app::fmradio {
+
+#include "external/ui_grapheq.hpp"
 
 #define FMR_BTNGRID_TOP 60
 

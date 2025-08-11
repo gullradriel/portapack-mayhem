@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2024 HTotoo
- * Copyright (C) 2025 RocketGod - Added modes from my Flipper Zero RF Jammer App - https://betaskynet.com
+ * Copyright (C) 2025 RocketGod
  *
  * This file is part of PortaPack.
  *
@@ -34,6 +34,8 @@ using namespace modems;
 using namespace ui;
 
 namespace ui::external_app::fmradio {
+
+#include "external/ui_grapheq.cpi"
 
 void FmRadioView::focus() {
     field_frequency.focus();

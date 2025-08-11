@@ -75,6 +75,11 @@ MEMORY
     ram_external_app_gfxeq      (rwx) : org = 0xADE20000, len = 32k
     ram_external_app_noaaapt_rx   (rwx) : org = 0xADE30000, len = 32k
     ram_external_app_detector_rx   (rwx) : org = 0xADE40000, len = 32k
+    ram_external_app_dinogame   (rwx) : org = 0xADE50000, len = 32k
+    ram_external_app_spaceinv   (rwx) : org = 0xADE60000, len = 32k
+    ram_external_app_blackjack  (rwx) : org = 0xADE70000, len = 32k
+    ram_external_app_battleship   (rwx) : org = 0xADE80000, len = 32k
+    ram_external_app_ert        (rwx) : org = 0xADE90000, len = 32k
 }
 
 SECTIONS
@@ -391,6 +396,34 @@ SECTIONS
         *(*ui*external_app*detector_rx*);
     } > ram_external_app_detector_rx
 
+    .external_app_dinogame : ALIGN(4) SUBALIGN(4)
+    {
+        KEEP(*(.external_app.app_dinogame.application_information));
+        *(*ui*external_app*dinogame*);
+    } > ram_external_app_dinogame
 
+    .external_app_spaceinv : ALIGN(4) SUBALIGN(4)
+    {
+        KEEP(*(.external_app.app_spaceinv.application_information));
+        *(*ui*external_app*spaceinv*);
+    } > ram_external_app_spaceinv
+
+        .external_app_blackjack : ALIGN(4) SUBALIGN(4)
+    {
+        KEEP(*(.external_app.app_blackjack.application_information));
+        *(*ui*external_app*blackjack*);
+    } > ram_external_app_blackjack
+
+        .external_app_battleship : ALIGN(4) SUBALIGN(4)
+    {
+        KEEP(*(.external_app.app_battleship.application_information));
+        *(*ui*external_app*battleship*);
+    } > ram_external_app_battleship
+
+        .external_app_ert : ALIGN(4) SUBALIGN(4)
+    {
+        KEEP(*(.external_app.app_ert.application_information));
+        *(*ui*external_app*ert*);
+    } > ram_external_app_ert
 }
 
