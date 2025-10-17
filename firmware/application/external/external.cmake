@@ -245,6 +245,19 @@ set(EXTCPPSRC
 	#soundboard
 	external/soundboard/main.cpp
 	external/soundboard/soundboard_app.cpp
+
+	#game2048
+	external/game2048/main.cpp
+	external/game2048/ui_game2048.cpp
+
+	#bht_tx
+	external/bht_tx/main.cpp
+	external/bht_tx/ui_bht_tx.cpp
+	external/bht_tx/bht.cpp
+
+	#morse_practice
+	external/morse_practice/main.cpp
+	external/morse_practice/ui_morse_practice.cpp
 )
 
 set(EXTAPPLIST
@@ -273,7 +286,7 @@ set(EXTAPPLIST
 	morse_tx
 	sstvtx
 	random_password
-	acars_rx
+	# acars_rx
 	ookbrute
 	ook_editor
 	wefax_rx
@@ -307,4 +320,7 @@ set(EXTAPPLIST
 	ert
 	epirb_rx
 	soundboard
+	game2048
+	bht_tx
+	morse_practice
 )
