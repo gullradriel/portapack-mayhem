@@ -28,6 +28,7 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <filesystem>
 
 #include "ui.hpp"
 #include "theme.hpp"
@@ -63,6 +64,8 @@ namespace ui {
 void add_apps(NavigationView& nav, BtnGridView& grid, app_location_t loc);
 void add_external_items(NavigationView& nav, app_location_t location, BtnGridView& grid, uint8_t error_tile_pos, bool show_error_tile = true);
 bool verify_sdcard_format();
+bool flash_external_app_slot(std::filesystem::path::string_type path, uint32_t payload_size = 0);
+bool run_flash_slot_app(NavigationView& nav);
 
 enum modal_t {
     INFO = 0,

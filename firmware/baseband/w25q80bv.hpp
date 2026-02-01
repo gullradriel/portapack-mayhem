@@ -33,6 +33,7 @@
 
 #define W25Q80BV_WRITE_ENABLE 0x06
 #define W25Q80BV_CHIP_ERASE 0xC7
+#define W25Q80BV_SECTOR_ERASE_4K 0x20
 #define W25Q80BV_DEVICE_ID 0xAB
 #define W25Q80BV_PAGE_PROGRAM 0x02
 
@@ -133,6 +134,7 @@ void setup();
 void remove_write_protection();
 uint8_t get_device_id();
 void erase_chip();
+void erase_sector(uint32_t address);
 void write(size_t page_index, uint8_t* data_buffer, size_t length);
 }  // namespace w25q80bv
 

@@ -28,6 +28,7 @@ import os
 from external_app_info import maximum_application_size
 from external_app_info import external_apps_address_start
 from external_app_info import external_apps_address_end
+from external_app_info import external_app_slot_size
 import subprocess
 
 import re
@@ -237,8 +238,11 @@ for image in images:
     padded_data = image['data'] + (spi_image_default_byte * pad_size)
     spi_image += padded_data
 
-if len(spi_image) > spi_size - 4:
-    raise RuntimeError('SPI flash image size of %d exceeds device size of %d bytes' % (len(spi_image) + 4, spi_size))
+max_image_size = spi_size - external_app_slot_size - 4
+if len(spi_image) > max_image_size:
+    raise RuntimeError(
+        'SPI flash image size of %d exceeds device size of %d bytes (flash slot reserves %d bytes)' %
+        (len(spi_image) + 4, spi_size, external_app_slot_size))
 
 pad_size = spi_size - 4 - len(spi_image)
 for i in range(pad_size):
@@ -283,5 +287,4 @@ if not os.path.exists(flash_py_path):
     import shutil
     print(f"\ncopy {source_file} to {flash_py_path}\n")
     shutil.copy2(source_file, flash_py_path)
-
 

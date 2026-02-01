@@ -29,13 +29,15 @@ import subprocess
 from external_app_info import maximum_application_size
 from external_app_info import external_apps_address_start
 from external_app_info import external_apps_address_end
+from external_app_info import external_app_slot_size
+from external_app_info import external_app_slot_address
 
 usage_message = """
 PortaPack external app image creator
 This script is used in the build process and should never be run manually.
 See firmware/application/CMakeLists.txt > COMMAND ${EXPORT_EXTERNAL_APP_IMAGES}
 
-Usage: <command> <project source dir> <binary dir> <cmake objcopy path> <list of external image prefixes>
+Usage: <command> [--flash-slot] <project source dir> <binary dir> <cmake objcopy path> <list of external image prefixes>
 """
 
 if len(sys.argv) < 4:
@@ -53,7 +55,7 @@ def write_image(data, path):
 	f.write(data)
 	f.close()
 
-def patch_image(path, image_data, search_address, replace_address):
+def patch_image(path, image_data, search_address, replace_address, max_size):
 	if (len(image_data) % 4) != 0:
 		#sys.exit(-1)
 		print("\n External App image file:", path, ", size not divideable by 4 :", len(image_data))
@@ -69,10 +71,10 @@ def patch_image(path, image_data, search_address, replace_address):
 		val = int.from_bytes(snippet, byteorder='little')
 
 		# in firmware/application/external/external.ld the origin is set to something like search_address=0xADB00000
-		# if the value is above the search_address and inside a 32kb window (maximum size of an app) we replace it
+		# if the value is above the search_address and inside the app window (maximum size of an app) we replace it
 		# with replace_address=(0x1008000 + m4 size) where the app will actually be located. The reason we do this instead just
 		# using the right address in external.ld is gcc does not permit to use the same memory range multiple times.
-		if val > search_address and (val - search_address) < maximum_application_size:
+		if val > search_address and (val - search_address) < max_size:
 			relative_address = val - search_address
 			new_address = replace_address + relative_address
 
@@ -80,10 +82,15 @@ def patch_image(path, image_data, search_address, replace_address):
 			external_application_image += new_snippet
 		else:
 			external_application_image += snippet
-			if (val >= external_apps_address_start) and (val < external_apps_address_end) and ((val & 0xFFFF) < maximum_application_size):
+			if (val >= external_apps_address_start) and (val < external_apps_address_end) and ((val & 0xFFFF) < max_size):
 				print ("WARNING: External code address", hex(val), "at offset", hex(x*4), "in", path)
 
 	return external_application_image
+
+flash_slot_mode = False
+if sys.argv[1] == "--flash-slot":
+	flash_slot_mode = True
+	sys.argv.pop(1)
 
 project_source_dir = sys.argv[1]   #/portapack-mayhem/firmware/application
 binary_dir = sys.argv[2]           #/portapack-mayhem/build/firmware/application
@@ -108,10 +115,16 @@ for external_image_prefix in sys.argv[4:]:
 
 	# skip m4 if not set
 	if (chunk_data[0] == 0 and chunk_data[1] == 0 and chunk_data[2] == 0 and chunk_data[3] == 0):
-		replace_address = 0x10080000
+		replace_address = external_app_slot_address if flash_slot_mode else 0x10080000
 		search_address = int.from_bytes(external_application_image[externalAppEntry_header_position:externalAppEntry_header_position+4], byteorder='little') & 0xFFFF0000
-		external_application_image = patch_image(himg, external_application_image, search_address, replace_address)
+		max_size = external_app_slot_size if flash_slot_mode else maximum_application_size
+		external_application_image = patch_image(himg, external_application_image, search_address, replace_address, max_size)
 		external_application_image[memory_location_header_position:memory_location_header_position+4] = replace_address.to_bytes(4, byteorder='little')
+		if flash_slot_mode:
+			external_application_image[m4_app_offset_header_position:m4_app_offset_header_position+4] = len(external_application_image).to_bytes(4, byteorder='little')
+			if len(external_application_image) > external_app_slot_size:
+				print("application {} can not exceed flash slot size: {} bytes used".format(external_image_prefix, len(external_application_image)))
+				sys.exit(-1)
 
 		checksum = 0
 		for i in range(0, len(external_application_image), 4):
@@ -121,8 +134,15 @@ for external_image_prefix in sys.argv[4:]:
 		checksum = (final_checksum - checksum) & 0xFFFFFFFF
 		external_application_image += checksum.to_bytes(4, 'little')
 
-		write_image(external_application_image, "{}/{}.ppma".format(binary_dir, external_image_prefix))
+		if flash_slot_mode:
+			write_image(external_application_image, "{}/{}.ppms".format(binary_dir, external_image_prefix))
+		else:
+			write_image(external_application_image, "{}/{}.ppma".format(binary_dir, external_image_prefix))
 		continue
+
+	if flash_slot_mode:
+		print("flash slot apps do not support baseband images")
+		sys.exit(-1)
 
 	print(chunk_data)
 	chunk_tag = chunk_data.decode("utf-8")
@@ -138,7 +158,7 @@ for external_image_prefix in sys.argv[4:]:
 
 	replace_address = 0x10080000 + len(m4_image)
 	search_address = int.from_bytes(external_application_image[externalAppEntry_header_position:externalAppEntry_header_position+4], byteorder='little') & 0xFFFF0000
-	external_application_image = patch_image(himg, external_application_image, search_address, replace_address)
+	external_application_image = patch_image(himg, external_application_image, search_address, replace_address, maximum_application_size)
 
 	external_application_image[memory_location_header_position:memory_location_header_position+4] = replace_address.to_bytes(4, byteorder='little')
 	external_application_image[m4_app_offset_header_position:m4_app_offset_header_position+4] = app_image_len.to_bytes(4, byteorder='little')

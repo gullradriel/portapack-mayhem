@@ -3,6 +3,7 @@
 #include "sd_card.hpp"
 #include "file_path.hpp"
 #include "ui_standalone_view.hpp"
+#include "external_app_slot.hpp"
 
 #include "i2cdevmanager.hpp"
 #include "i2cdev_ppmod.hpp"
@@ -351,6 +352,41 @@ namespace ui {
         return false;
 
     application_information.externalAppEntry(nav);
+    return true;
+}
+
+/* static */ bool ExternalItemsMenuLoader::run_flash_slot_app(ui::NavigationView& nav) {
+    auto slot_base = reinterpret_cast<const uint8_t*>(portapack::spi_flash::external_app_slot.base());
+    auto slot_end = slot_base + portapack::spi_flash::external_app_slot.size;
+
+    const auto* application_information = reinterpret_cast<const application_information_t*>(slot_base);
+
+    if (application_information->header_version != CURRENT_HEADER_VERSION)
+        return false;
+
+    if (application_information->app_version != VERSION_MD5)
+        return false;
+
+    const auto* memory_location = application_information->memory_location;
+    if (memory_location < slot_base || memory_location >= slot_end)
+        return false;
+
+    const auto* entry = reinterpret_cast<const uint8_t*>(reinterpret_cast<uintptr_t>(application_information->externalAppEntry));
+    if (entry < slot_base || entry >= slot_end)
+        return false;
+
+    if (application_information->m4_app_offset == 0)
+        return false;
+
+    uint32_t slot_length = application_information->m4_app_offset;
+    if (slot_length > portapack::spi_flash::external_app_slot.size)
+        return false;
+
+    uint32_t checksum = simple_checksum(reinterpret_cast<uint32_t>(slot_base), slot_length);
+    if (checksum != EXT_APP_EXPECTED_CHECKSUM)
+        return false;
+
+    application_information->externalAppEntry(nav);
     return true;
 }
 

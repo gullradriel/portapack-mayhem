@@ -152,6 +152,20 @@ void erase_chip() {
     palSetPad(W25Q80BV_SELECT_PORT, W25Q80BV_SELECT_PAD);
 }
 
+void erase_sector(uint32_t address) {
+    uint8_t header[] = {
+        W25Q80BV_SECTOR_ERASE_4K,
+        (uint8_t)((address & 0xFF0000) >> 16),
+        (uint8_t)((address & 0xFF00) >> 8),
+        (uint8_t)(address & 0xFF)};
+
+    palClearPad(W25Q80BV_SELECT_PORT, W25Q80BV_SELECT_PAD);
+    for (size_t j = 0; j < 4; j++) {
+        header[j] = spi_ssp_transfer_word(header[j]);
+    }
+    palSetPad(W25Q80BV_SELECT_PORT, W25Q80BV_SELECT_PAD);
+}
+
 void write(size_t page_index, uint8_t* data_buffer, size_t length) {
     size_t page_len = 256U;
     size_t addr = page_index * page_len;

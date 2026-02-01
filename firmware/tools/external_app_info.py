@@ -25,3 +25,22 @@
 maximum_application_size = 32*1024
 external_apps_address_start = 0xADB00000
 external_apps_address_end = 0xADF00000
+external_app_slot_size = 96*1024
+
+def _read_flash_size_mb():
+	try:
+		import re
+		from pathlib import Path
+		flashsize_path = Path(__file__).resolve().parents[2] / "flashsize.h"
+		if not flashsize_path.exists():
+			return 1
+		content = flashsize_path.read_text()
+		match = re.search(r"#define\\s+FLASH_SIZE_MB\\s+(\\d+)", content)
+		if match:
+			return int(match.group(1))
+	except Exception:
+		pass
+	return 1
+
+external_app_slot_offset = (_read_flash_size_mb() * 1024 * 1024) - external_app_slot_size
+external_app_slot_address = 0x14000000 + external_app_slot_offset

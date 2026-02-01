@@ -61,6 +61,7 @@
 #include "ui_subghzd.hpp"
 #include "ui_battinfo.hpp"
 #include "ui_external_items_menu_loader.hpp"
+#include "external_app_slot.hpp"
 
 #include "ais_app.hpp"
 #include "analog_audio_app.hpp"
@@ -79,6 +80,8 @@
 
 #include <locale>
 #include <codecvt>
+#include <algorithm>
+#include <cstring>
 
 using portapack::receiver_model;
 using portapack::transmitter_model;
@@ -165,6 +168,44 @@ bool NavigationView::StartAppByName(const char* name) {
     }
 
     return false;
+}
+
+bool flash_external_app_slot(std::filesystem::path::string_type path, uint32_t payload_size) {
+    if (path.empty())
+        return false;
+
+    File app_file;
+    auto openError = app_file.open(path.c_str());
+    if (openError)
+        return false;
+
+    uint32_t file_size = static_cast<uint32_t>(app_file.size());
+    if (payload_size == 0 || payload_size > file_size)
+        payload_size = file_size;
+
+    if (payload_size > portapack::external_app_slot::kFlashSlotSize)
+        return false;
+
+    auto* request = reinterpret_cast<portapack::external_app_slot::FlashSlotRequest*>(&shared_memory.bb_data.data[0]);
+    std::memset(request, 0, sizeof(*request));
+    request->magic = portapack::external_app_slot::kFlashSlotMagic;
+    request->version = portapack::external_app_slot::kFlashSlotVersion;
+    request->flags = 0;
+    request->slot_offset = portapack::external_app_slot::kFlashSlotOffset;
+    request->slot_size = portapack::external_app_slot::kFlashSlotSize;
+    request->payload_size = payload_size;
+
+    auto path_len = std::min(path.size(), std::size(request->path) - 1);
+    std::memcpy(request->path, path.data(), path_len * sizeof(request->path[0]));
+    request->path[path_len] = u'\0';
+
+    m4_init(portapack::spi_flash::image_tag_flash_utility, portapack::memory::map::m4_code, false);
+    m0_halt();
+    return true;
+}
+
+bool run_flash_slot_app(NavigationView& nav) {
+    return ExternalItemsMenuLoader::run_flash_slot_app(nav);
 }
 
 /* StatusTray ************************************************************/

@@ -27,6 +27,7 @@
 #include <cstddef>
 
 #include "memory_map.hpp"
+#include "external_app_slot.hpp"
 
 extern uint32_t _textend;
 
@@ -159,6 +160,11 @@ const region_t images{
 const region_t application{
     .offset = 0x00000,
     .size = reinterpret_cast<uint32_t>(&_textend),
+};
+
+const region_t external_app_slot{
+    .offset = portapack::external_app_slot::kFlashSlotOffset,
+    .size = portapack::external_app_slot::kFlashSlotSize,
 };
 
 } /* namespace spi_flash */
