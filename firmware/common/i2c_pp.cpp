@@ -35,11 +35,10 @@ bool I2C::probe(i2caddr_t addr, systime_t timeout) {
     _driver->errors = I2CD_NO_ERROR;
     _driver->state = I2C_ACTIVE_TX;
     msg_t rdymsg = i2c_lld_master_transmit_timeout(_driver, addr, nullptr, 0, nullptr, 0, timeout);
-    // Always return to I2C_READY.  The original code set I2C_LOCKED on
-    // timeout, which permanently blocked all subsequent transmit()/receive()
-    // calls via the HAL (i2cMasterTransmitTimeout checks state == I2C_READY
-    // and returns RDY_TIMEOUT immediately otherwise, without resetting it).
-    _driver->state = I2C_READY;
+    if (rdymsg == RDY_TIMEOUT)
+        _driver->state = I2C_LOCKED;
+    else
+        _driver->state = I2C_READY;
     chSysUnlock();
     i2cReleaseBus(_driver);
     return (rdymsg == RDY_OK);
@@ -53,13 +52,6 @@ bool I2C::transfer(
     const size_t count_rx,
     systime_t timeout) {
     i2cAcquireBus(_driver);
-    // Recover from I2C_LOCKED state left by probe() timeouts.
-    // The HAL's i2cMasterTransmitTimeout() returns RDY_TIMEOUT immediately
-    // when state != I2C_READY and never resets it, permanently blocking
-    // all transmit/receive operations after any probe timeout.
-    if (_driver->state == I2C_LOCKED) {
-        _driver->state = I2C_READY;
-    }
     const msg_t status = i2cMasterTransmitTimeout(
         _driver, slave_address, data_tx, count_tx, data_rx, count_rx, timeout);
     i2cReleaseBus(_driver);
@@ -72,9 +64,6 @@ bool I2C::receive(
     const size_t count,
     systime_t timeout) {
     i2cAcquireBus(_driver);
-    if (_driver->state == I2C_LOCKED) {
-        _driver->state = I2C_READY;
-    }
     const msg_t status = i2cMasterReceiveTimeout(
         _driver, slave_address, data, count, timeout);
     i2cReleaseBus(_driver);
