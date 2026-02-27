@@ -72,6 +72,15 @@ class I2C {
         const size_t count,
         const systime_t timeout = TIME_INFINITE);
 
+    // Atomic probe-then-write: acquires the bus once, probes the device
+    // (recovering from I2C_LOCKED), and if the device ACKs, transmits
+    // data — all without releasing the bus in between.
+    bool probe_and_write(
+        i2caddr_t addr,
+        const uint8_t* const data,
+        const size_t count,
+        const systime_t timeout);
+
    private:
     I2CDriver* const _driver;
 

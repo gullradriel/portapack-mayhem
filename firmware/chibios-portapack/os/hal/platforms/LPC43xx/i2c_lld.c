@@ -299,7 +299,7 @@ static void i2c_lld_serve_event_interrupt(I2CDriver *i2cp) {
     i2cp->rxbytes--;
     i2c_periph_stop(dp);
     wakeup_isr(i2cp, RDY_OK);
-    /* fall through */
+    break;
   case I2C_MASTER_TX_ADDR_NACK:   /* 0x20 */
     /* Slave address and R/W transmitted, NACK received (no response) */
   case I2C_MASTER_TX_DATA_NACK:   /* 0x30 */

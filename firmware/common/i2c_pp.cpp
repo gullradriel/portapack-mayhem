@@ -77,3 +77,41 @@ bool I2C::transmit(
     systime_t timeout) {
     return transfer(slave_address, data, count, NULL, 0, timeout);
 }
+
+bool I2C::probe_and_write(
+    i2caddr_t addr,
+    const uint8_t* const data,
+    const size_t count,
+    systime_t timeout) {
+    i2cAcquireBus(_driver);
+    chSysLock();
+
+    // Phase 1: Probe — resets I2C state machine from I2C_LOCKED to
+    // I2C_READY so the subsequent write can succeed.  This is the
+    // same sequence as probe(), but we keep the bus held.
+    _driver->errors = I2CD_NO_ERROR;
+    _driver->state = I2C_ACTIVE_TX;
+    msg_t rdymsg = i2c_lld_master_transmit_timeout(
+        _driver, addr, nullptr, 0, nullptr, 0, timeout);
+    if (rdymsg != RDY_OK) {
+        _driver->state = (rdymsg == RDY_TIMEOUT) ? I2C_LOCKED : I2C_READY;
+        chSysUnlock();
+        i2cReleaseBus(_driver);
+        return false;
+    }
+
+    // Phase 2: Write data.  Bus still exclusively held, so no other
+    // thread (e.g. I2CDevManager scanner) can intervene.
+    _driver->errors = I2CD_NO_ERROR;
+    _driver->state = I2C_ACTIVE_TX;
+    rdymsg = i2c_lld_master_transmit_timeout(
+        _driver, addr, data, count, nullptr, 0, timeout);
+    if (rdymsg == RDY_TIMEOUT)
+        _driver->state = I2C_LOCKED;
+    else
+        _driver->state = I2C_READY;
+
+    chSysUnlock();
+    i2cReleaseBus(_driver);
+    return (rdymsg == RDY_OK);
+}
