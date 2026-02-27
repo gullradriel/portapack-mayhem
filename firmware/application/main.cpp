@@ -209,7 +209,7 @@ int main(void) {
 
             // Restore Opera Cake board state from saved settings before the
             // UI starts, so the antenna switch is configured on every boot.
-            // opera_cake::restore_at_boot();
+            opera_cake::restore_at_boot();
 
             event_loop();
 
