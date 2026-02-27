@@ -139,9 +139,11 @@ bool update_config(
 
     if (mode == 0) {
         // Manual mode: detect board and apply the selected ports now.
+        // Always probe first: probe() resets the I2C state machine from
+        // I2C_LOCKED (left by the I2CDevManager scanner) to I2C_READY,
+        // which is required for subsequent transmit() calls to succeed.
         oc_mode_ = 0;
-        if (!oc_board_present_)
-            oc_board_present_ = i2c0.probe(OPERACAKE_I2C_ADDRESS, I2C_TIMEOUT_TICKS);
+        oc_board_present_ = i2c0.probe(OPERACAKE_I2C_ADDRESS, I2C_TIMEOUT_TICKS);
         if (!oc_board_present_)
             return false;
         return write_ports(port_a, port_b);
