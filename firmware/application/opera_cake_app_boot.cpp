@@ -71,6 +71,7 @@ static constexpr systime_t I2C_TIMEOUT_TICKS = MS2ST(50);
 
 static uint8_t oc_mode_{0};              // 0 = manual, 1 = frequency
 static bool oc_board_present_{false};
+static bool oc_detect_attempted_{false}; // lazy detection: tried once?
 static FreqRanges oc_ranges_{{1, 30, 300, 1000}, {30, 300, 1000, 6000}};
 static int8_t oc_current_port_{-1};      // -1 = not yet determined
 
@@ -91,9 +92,20 @@ static bool write_ports(uint8_t port_a_idx, uint8_t port_b_idx) {
 // ---- Public API ---------------------------------------------------------
 
 void on_frequency_changed(rf::Frequency freq_hz) {
-    // Fast path: nothing to do if not in frequency mode or no board.
-    if (oc_mode_ != 1 || !oc_board_present_)
+    // Fast path: nothing to do if not in frequency mode.
+    if (oc_mode_ != 1)
         return;
+
+    // Lazy board detection: try once after boot, then respect the result.
+    // This avoids I2C contention with the I2CDevManager initial scan.
+    if (!oc_board_present_) {
+        if (oc_detect_attempted_)
+            return;
+        oc_detect_attempted_ = true;
+        oc_board_present_ = i2c0.probe(OPERACAKE_I2C_ADDRESS, I2C_TIMEOUT_TICKS);
+        if (!oc_board_present_)
+            return;
+    }
 
     const uint32_t freq_mhz =
         static_cast<uint32_t>(freq_hz / 1'000'000LL);
@@ -124,8 +136,9 @@ bool update_config(
     oc_mode_ = mode;
     oc_ranges_ = ranges;
     oc_current_port_ = -1;  // force re-evaluation
+    oc_detect_attempted_ = false;  // allow re-detection on next use
 
-    // Detect board if not already known.
+    // Detect board (always try when called explicitly from the app UI).
     if (!oc_board_present_)
         oc_board_present_ = i2c0.probe(OPERACAKE_I2C_ADDRESS, I2C_TIMEOUT_TICKS);
 
@@ -188,21 +201,17 @@ void restore_at_boot() {
     oc_ranges_.maxs[3] = static_cast<uint16_t>(setting_max_a4);
     oc_current_port_ = -1;
 
-    // Bail out quickly if no board is connected.
-    oc_board_present_ = i2c0.probe(OPERACAKE_I2C_ADDRESS, I2C_TIMEOUT_TICKS);
-    if (!oc_board_present_)
-        return;
-
-    if (setting_mode == 0) {
-        // Manual mode: restore the saved A0->Ax / B0->Bx connection.
-        write_ports(setting_port_a, setting_port_b);
-    } else {
-        // Frequency mode: no receiver is running at boot, so select the
-        // catch-all fallback port (A4/B4).  Automatic switching will kick
-        // in as soon as a receiver app starts tuning.
-        write_ports(3, 3);
-        oc_current_port_ = 3;
-    }
+    // Do NOT probe or write I2C at boot.  The I2CDevManager scanner is
+    // actively scanning all 127 addresses at this point, and contending
+    // for the I2C bus mutex would block the main thread (delaying the
+    // event loop and causing a white screen).
+    //
+    // Board detection is deferred:
+    //   - Frequency mode: lazy detection on first on_frequency_changed()
+    //     call when a receiver app starts tuning.
+    //   - Manual mode: detection when the user opens the Opera Cake app.
+    //
+    // oc_board_present_ stays false until first lazy detection succeeds.
 }
 
 }  // namespace opera_cake
