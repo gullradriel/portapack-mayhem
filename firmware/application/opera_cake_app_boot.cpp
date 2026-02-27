@@ -69,11 +69,11 @@ static constexpr systime_t I2C_TIMEOUT_TICKS = MS2ST(50);
 // ---- Shared state -------------------------------------------------------
 // Mirrors the HackRF firmware's operacake_range array + current_range.
 
-static uint8_t oc_mode_{0};              // 0 = manual, 1 = frequency
+static uint8_t oc_mode_{0};  // 0 = manual, 1 = frequency
 static bool oc_board_present_{false};
-static bool oc_detect_attempted_{false}; // lazy detection: tried once?
+static bool oc_detect_attempted_{false};  // lazy detection: tried once?
 static FreqRanges oc_ranges_{{1, 30, 300, 1000}, {30, 300, 1000, 6000}};
-static int8_t oc_current_port_{-1};      // -1 = not yet determined
+static int8_t oc_current_port_{-1};  // -1 = not yet determined
 
 // ---- Internal helpers ---------------------------------------------------
 
@@ -134,7 +134,7 @@ bool update_config(
     uint8_t port_b,
     const FreqRanges& ranges) {
     oc_ranges_ = ranges;
-    oc_current_port_ = -1;  // force re-evaluation
+    oc_current_port_ = -1;         // force re-evaluation
     oc_detect_attempted_ = false;  // allow re-detection on next use
 
     if (mode == 0) {
