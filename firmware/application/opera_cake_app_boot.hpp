@@ -58,6 +58,10 @@ bool update_config(
     uint8_t port_b,
     const FreqRanges& ranges);
 
+// Probes the I2C bus for an Opera Cake board.  Updates the internal
+// board-present flag and returns true if found.  Safe to call at any time.
+bool probe_board();
+
 // Returns true if an Opera Cake board has been detected on the I2C bus.
 bool is_board_present();
 

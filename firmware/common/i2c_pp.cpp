@@ -35,10 +35,11 @@ bool I2C::probe(i2caddr_t addr, systime_t timeout) {
     _driver->errors = I2CD_NO_ERROR;
     _driver->state = I2C_ACTIVE_TX;
     msg_t rdymsg = i2c_lld_master_transmit_timeout(_driver, addr, nullptr, 0, nullptr, 0, timeout);
-    if (rdymsg == RDY_TIMEOUT)
-        _driver->state = I2C_LOCKED;
-    else
-        _driver->state = I2C_READY;
+    // Always return to I2C_READY.  The original code set I2C_LOCKED on
+    // timeout, which permanently blocked all subsequent transmit()/receive()
+    // calls via the HAL (i2cMasterTransmitTimeout checks state == I2C_READY
+    // and returns RDY_TIMEOUT immediately otherwise, without resetting it).
+    _driver->state = I2C_READY;
     chSysUnlock();
     i2cReleaseBus(_driver);
     return (rdymsg == RDY_OK);
