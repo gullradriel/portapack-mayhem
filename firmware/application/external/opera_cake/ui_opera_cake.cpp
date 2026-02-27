@@ -125,12 +125,9 @@ OperaCakeView::OperaCakeView(NavigationView& nav)
 // ---- Board detection ---------------------------------------------------
 
 void OperaCakeView::detect_board() {
-    // Re-probe the board (it may have been connected after boot).
-    // update_config will probe and apply the current mode/ranges.
-    ::opera_cake::FreqRanges ranges;
-    build_ranges(ranges);
-    board_detected_ = ::opera_cake::update_config(
-        setting_mode, setting_port_a, setting_port_b, ranges);
+    // Just probe the board — don't apply any configuration.
+    // Configuration is only applied when the user clicks Apply.
+    board_detected_ = ::opera_cake::probe_board();
     text_status.set(board_detected_ ? "Found at 0x18" : "Not detected");
 }
 
@@ -163,11 +160,10 @@ void OperaCakeView::apply_manual() {
 void OperaCakeView::apply_frequency() {
     ::opera_cake::FreqRanges ranges;
     build_ranges(ranges);
-    if (::opera_cake::update_config(1, setting_port_a, setting_port_b, ranges)) {
-        text_result.set("Auto-switch active");
-    } else {
-        text_result.set("Err: board not found");
-    }
+    ::opera_cake::update_config(1, setting_port_a, setting_port_b, ranges);
+    text_result.set(board_detected_
+                        ? "Auto-switch active"
+                        : "Saved (board not found)");
 }
 
 // ---- Focus -------------------------------------------------------------

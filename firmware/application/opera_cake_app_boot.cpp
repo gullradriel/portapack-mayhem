@@ -133,29 +133,31 @@ bool update_config(
     uint8_t port_a,
     uint8_t port_b,
     const FreqRanges& ranges) {
-    oc_mode_ = mode;
     oc_ranges_ = ranges;
     oc_current_port_ = -1;  // force re-evaluation
     oc_detect_attempted_ = false;  // allow re-detection on next use
 
-    // Detect board (always try when called explicitly from the app UI).
-    if (!oc_board_present_)
-        oc_board_present_ = i2c0.probe(OPERACAKE_I2C_ADDRESS, I2C_TIMEOUT_TICKS);
-
-    if (!oc_board_present_)
-        return false;
-
     if (mode == 0) {
-        // Manual mode: apply the selected ports immediately.
+        // Manual mode: detect board and apply the selected ports now.
+        oc_mode_ = 0;
+        if (!oc_board_present_)
+            oc_board_present_ = i2c0.probe(OPERACAKE_I2C_ADDRESS, I2C_TIMEOUT_TICKS);
+        if (!oc_board_present_)
+            return false;
         return write_ports(port_a, port_b);
     } else {
-        // Frequency mode: just store configuration.  The actual port
-        // switching is driven by on_frequency_changed() which is called
-        // from ReceiverModel::update_tuning_frequency() whenever a
-        // receiver app retunes.  We do NOT write I2C here to avoid
-        // blocking the UI thread.
+        // Frequency mode: store configuration only — NO I2C at all.
+        // Port switching is driven by on_frequency_changed() which is
+        // called from ReceiverModel::update_tuning_frequency() whenever
+        // a receiver app retunes.
+        oc_mode_ = 1;
         return true;
     }
+}
+
+bool probe_board() {
+    oc_board_present_ = i2c0.probe(OPERACAKE_I2C_ADDRESS, I2C_TIMEOUT_TICKS);
+    return oc_board_present_;
 }
 
 bool is_board_present() {
