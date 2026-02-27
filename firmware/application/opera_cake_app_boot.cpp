@@ -149,8 +149,11 @@ bool update_config(
         // Manual mode: apply the selected ports immediately.
         return write_ports(port_a, port_b);
     } else {
-        // Frequency mode: apply based on current receiver frequency.
-        on_frequency_changed(receiver_model.target_frequency());
+        // Frequency mode: just store configuration.  The actual port
+        // switching is driven by on_frequency_changed() which is called
+        // from ReceiverModel::update_tuning_frequency() whenever a
+        // receiver app retunes.  We do NOT write I2C here to avoid
+        // blocking the UI thread.
         return true;
     }
 }
