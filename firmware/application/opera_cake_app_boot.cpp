@@ -78,15 +78,20 @@ static int8_t oc_current_port_{-1};  // -1 = not yet determined
 // ---- Internal helpers ---------------------------------------------------
 
 static bool write_ports(uint8_t port_a_idx, uint8_t port_b_idx) {
+    // Use probe_and_write() for each I2C transaction.  This atomically
+    // probes (recovering from I2C_LOCKED left by I2CDevManager scans)
+    // and writes under a single bus acquisition, preventing the race
+    // condition where the scanner thread changes bus state between a
+    // separate probe() and transmit().
     const uint8_t cfg[] = {REG_CONFIG, 0x00};
-    if (!i2c0.transmit(OPERACAKE_I2C_ADDRESS, cfg, 2, I2C_TIMEOUT_TICKS))
+    if (!i2c0.probe_and_write(OPERACAKE_I2C_ADDRESS, cfg, 2, I2C_TIMEOUT_TICKS))
         return false;
 
     const uint8_t output = PORT_A_BITS[port_a_idx & 3] |
                            PORT_B_BITS[port_b_idx & 3] |
                            OUTPUT_BASE;
     const uint8_t out[] = {REG_OUTPUT, output};
-    return i2c0.transmit(OPERACAKE_I2C_ADDRESS, out, 2, I2C_TIMEOUT_TICKS);
+    return i2c0.probe_and_write(OPERACAKE_I2C_ADDRESS, out, 2, I2C_TIMEOUT_TICKS);
 }
 
 // ---- Public API ---------------------------------------------------------
@@ -138,15 +143,14 @@ bool update_config(
     oc_detect_attempted_ = false;  // allow re-detection on next use
 
     if (mode == 0) {
-        // Manual mode: detect board and apply the selected ports now.
-        // Always probe first: probe() resets the I2C state machine from
-        // I2C_LOCKED (left by the I2CDevManager scanner) to I2C_READY,
-        // which is required for subsequent transmit() calls to succeed.
+        // Manual mode: apply the selected ports now.
+        // write_ports() uses probe_and_write() which atomically probes
+        // (handling I2C_LOCKED recovery) and writes under one bus lock,
+        // so a separate probe step is not needed.
         oc_mode_ = 0;
-        oc_board_present_ = i2c0.probe(OPERACAKE_I2C_ADDRESS, I2C_TIMEOUT_TICKS);
-        if (!oc_board_present_)
-            return false;
-        return write_ports(port_a, port_b);
+        bool ok = write_ports(port_a, port_b);
+        oc_board_present_ = ok;
+        return ok;
     } else {
         // Frequency mode: store configuration only — NO I2C at all.
         // Port switching is driven by on_frequency_changed() which is
