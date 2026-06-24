@@ -51,6 +51,7 @@ using namespace hackrf::one;
 #include "portapack.hpp"
 #include "portapack_persistent_memory.hpp"
 #include "baseband_api.hpp"
+#include "operacake_manager.hpp"
 #include "hal.h"  // For LPC_SGPIO
 
 #include "gpio.hpp"
@@ -347,6 +348,14 @@ bool set_tuning_frequency(const rf::Frequency frequency) {
 #else
         baseband_cpld.set_invert(mixer_invert ^ baseband_invert);
 #endif
+
+        /* Opera Cake frequency-mode auto-switch hook. Runs in thread context
+         * (this is the common RX/TX tune path, never an ISR), so the I2C write
+         * is safe to perform directly. The manager early-outs cheaply unless a
+         * board is actually present and armed in Frequency mode, and suppresses
+         * redundant writes when the active band hasn't changed. Driven by the
+         * requested (antenna-side) frequency, not the converter-corrected one. */
+        operacake::OperaCakeManager::instance().on_frequency_changed(frequency);
 
         return result_second_if;
     } else {

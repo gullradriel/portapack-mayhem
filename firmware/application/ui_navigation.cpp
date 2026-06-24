@@ -43,6 +43,7 @@
 #include "ui_iq_trim.hpp"
 #include "ui_looking_glass_app.hpp"
 #include "ui_mictx.hpp"
+#include "ui_operacake.hpp"
 
 #include "ui_playlist.hpp"
 #include "ui_rds.hpp"
@@ -121,6 +122,7 @@ const NavigationView::AppList NavigationView::appList = {
     {"freqman", "Freq. Manager", UTILITIES, Color::green(), &bitmap_icon_freqman, new ViewFactory<FrequencyManagerView>()},
     {"iqtrim", "IQ Trim", UTILITIES, Color::orange(), &bitmap_icon_trim, new ViewFactory<IQTrimView>()},
     {"notepad", "Notepad", UTILITIES, Color::dark_cyan(), &bitmap_icon_notepad, new ViewFactory<TextEditorView>()},
+    {"operacake", "Opera Cake", UTILITIES, Color::orange(), &bitmap_icon_peripherals_details, new ViewFactory<OperaCakeView>()},
     {nullptr, "Debug", UTILITIES, Color::light_grey(), &bitmap_icon_debug, new ViewFactory<DebugMenuView>()},
     //{"testapp", "Test App", UTILITIES, Color::dark_grey(), nullptr, new ViewFactory<TestView>()},
     // Dangerous apps.

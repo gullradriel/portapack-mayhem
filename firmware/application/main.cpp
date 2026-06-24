@@ -139,6 +139,7 @@ Continuous (Fox-oring)
 
 #include <string.h>
 #include "i2cdevmanager.hpp"
+#include "operacake_manager.hpp"
 
 #include "lpc43xx.inc"
 
@@ -180,6 +181,10 @@ static void event_loop() {
         }};
     portapack::setEventDispatcherToUSBSerial(&event_dispatcher);
     i2cdev::I2CDevManager::setEventDispatcher(&event_dispatcher);
+    /* Detect any Opera Cake board(s) and re-apply the saved I2C-mode routing
+     * (manual ports / frequency ranges) from the SD card. I2C-only; never
+     * touches the GPIO/time-mode path that conflicts with the PortaPack. */
+    operacake::OperaCakeManager::instance().load_and_apply();
     system_view.get_navigation_view()->handle_autostart();
     event_dispatcher.run();
 }

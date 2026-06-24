@@ -229,6 +229,7 @@ set(CPPSRC
 	usb_serial_host_to_device.cpp
 	usb_serial_asyncmsg.cpp
 	qrcodegen.cpp
+	operacake_manager.cpp
 	radio.cpp
 	receiver_model.cpp
 	recent_entries.cpp
@@ -305,6 +306,7 @@ set(CPPSRC
 	apps/ui_looking_glass_app.cpp
 	apps/ui_mictx.cpp
 	apps/ui_modemsetup.cpp
+	apps/ui_operacake.cpp
 	apps/ui_playlist.cpp
 	apps/ui_rds.cpp
 	apps/ui_recon_settings.cpp
